@@ -1,0 +1,23 @@
+<launch>
+    <!-- parametre yazmak için let tagını kullanırız, evet burda parametre tanımladık-->
+    <let name="urdf_path" 
+         value="$(find-pkg-share duckiebot_description)/urdf/duckiebot.urdf.xacro" /> <!-- urdf in aslında nereye installed edildiğinin path'ini vericez. hatırla ccake'de install ettik bi yere, onu arıyoz.-->
+    <!-- value="$(find-pkg-share duckiebot_description)/urdf/duckiebot.urdf" /> -->
+
+    <!-- şimdi node start edicez, paket ismi ve executable ile-->
+    <node pkg="robot_state_publisher" exec= "robot_state_publisher">
+        <!-- şimdi node'un aldığı parametresini belirlicez, değişken olarak tanımladığımız urdf file yolunu parametre olarak koyucaz-->
+        <param name="robot_description"
+               value= "$(command 'xacro $(var urdf_path)')" /> <!-- tanımladığın değişkeni böyle kullanırsın $(var urdf_path). xacro fonksiyonu ise kendisine verilen urdf dosyasını alır ve plain urdf ürtir. bunu üretmeliyiz çünkü paket bizden onu istiyor-->
+    </node>                       <!-- xacro, verdiğin dosyayı plain hale çevirir-->
+
+    <!-- şimdi joint_state_publisher node'unu start edicez. gui'yi start ederek onu da start etmiş oluyoruz, denedim -->
+    <node pkg="joint_state_publisher_gui" exec= "joint_state_publisher_gui" />
+    
+    
+    <!-- şimdi de rvizi start edelim-->
+    <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(find-pkg-share duckiebot_description)/rviz/urdf_config2.rviz"/>
+    <!-- output için iki seçenek var bi screen bir de log. bu outğut parametresi çıktıların (logların) nerye yazılacağını belirlemek. screen dersen terminale yazar, konsolda canlı görürsün, log dersen log soyasına kaydeder-->
+
+    
+</launch>

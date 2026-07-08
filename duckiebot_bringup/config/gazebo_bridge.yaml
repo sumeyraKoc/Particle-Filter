@@ -1,0 +1,67 @@
+# her topic için bi bridge kurman lazım, gz topic -l  veya ros2 topic list deyip listeden bakablirsin neler var
+
+# clock topici ros'ta yok gz'de var
+- ros_topic_name: "/clock" # istediğin ismi veriyon
+  gz_topic_name: "/clock" # listedeki isimle aynı olmalı
+  ros_type_name: "rosgraph_msgs/msg/Clock" # bi github sayfasında var: https://github.com/gazebosim/ros_gz/tree/ros2/ros_gz_bridge
+  gz_type_name: "gz.msgs.Clock" # terminale gz topic -i -t /topic ismini yazarsan type_name'i bulursun
+  direction: "GZ_TO_ROS" # burası gz to ros2 or ros2 to gz or bidirectional olur: GZ_TO_ROS ROS_TO_GZ BIDIRECTIONAL
+
+# joint state ise ikisinde de var
+- ros_topic_name: "/joint_states" # listedeki isimle aynı olmalı
+  gz_topic_name: "/world/empty/model/duckiebot/joint_state" # listedeki isimle aynı olmalı
+  ros_type_name: "sensor_msgs/msg/JointState" #terminale ros2 topic info /topic ismini yazarsan type_name'i bulursun, github sayfasında da var, istersen ordan da bulursun
+  gz_type_name: "gz.msgs.Model" #terminale gz topic -i -t /topic ismini yazarsan type_name'i bulursun
+  directin: "GZ_TO_ROS"
+
+# tf gazeboda publish ediliyor, diffdrive plugin'i publish ediyor odom ile footprint arasında
+- ros_topic_name: "/tf" # listedeki isimle aynı olmalı
+  gz_topic_name: "/model/duckiebot/tf" # listedeki isimle aynı olmalı
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: "GZ_TO_ROS"
+
+# diffdrive plugin i odometry verisini de yayınlıyordu, ros2'da yok bu, odometry navigation stack için lazım SLAM için yani
+- ros_topic_name: "/odom"
+  gz_topic_name: "/model/duckiebot/odometry"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: "GZ_TO_ROS"
+
+# işte kontrol kısmı burda, cmd_vel ile rostan gazeboya komut göndericez. rosta bu topic yok, gazeboda var ama bunun yön üstünde bi etkisi yok
+- ros_topic_name: "/cmd_vel" # rostan göndermemiz rosta bu topic olacağı anlamına gelmiyor. rosta topic olmaması kullanmaycağımız/ mesaj gönderemeyceğimiz anlmana gelmiyor
+  gz_topic_name: "/model/duckiebot/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: "ROS_TO_GZ"
+
+
+# Camera için bridge
+- ros_topic_name: "/camera/camera_info" # gz ile aynı olsun
+  gz_topic_name: "/camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo" #yukardaki siteden alındı
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/image_raw"
+  gz_topic_name: "/camera/image_raw"
+  ros_type_name: "sensor_msgs/msg/Image" #yukardaki siteden alındı
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+#   # Lidar
+# - ros_topic_name: "/scan"
+#   gz_topic_name: "/scan"
+#   ros_type_name: "sensor_msgs/msg/LaserScan" 
+#   gz_type_name: "gz.msgs.LaserScan"
+#   direction: GZ_TO_ROS
+
+#IMU
+- ros_topic_name: "/imu"
+  gz_topic_name: "/imu"
+  ros_type_name: "sensor_msgs/msg/Imu" #yukardaki siteden alındı
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+# Thermal
+

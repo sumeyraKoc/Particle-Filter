@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- https://github.com/gazebosim/gz-sim/tree/gz-sim10/src/systems bu siteden pluginleri bulabilirsin -->
+
+    <!-- tekerlekli bir robotu kontrol edebilicez bu pluginle -->
+    <gazebo>
+        <!-- diff drive diferansiyel sürüşlü robotlar için kullanılır -->
+        <!-- Diff-drive plugin tekerlek dönüşlerini takip eder -> Robotun ne kadar ilerlediğini ve döndüğünü hesaplar -> Sonucu /tf ve /odom mesajı olarak yayınlar. -->
+        <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive" > <!-- filename dediği sabit gz-sim dicen sonra kelimeleri tre ile ayırıp diff-drive dicen e nson da system eklicen. name dediğiniyse githubtaki cc uzantılı dosyanın en altından bulursun -->
+            <!-- githubtaki h uzantılı dosyadan hangi taglar var bakabilirsin -->
+            <left_joint>base_left_wheel_joint</left_joint> <!-- URDF dosyasındaki joint ismini kullanamlısın birebir -->
+            <right_joint>base_right_wheel_joint</right_joint>
+            <wheel_separation>0.2</wheel_separation> <!-- base_width + (tekerlek uzunluklarının yarısı*2) -->
+            <wheel_radius>0.066</wheel_radius>
+            <!-- Odometry bilgisinin hangi koordinat sisteminde ifade edildiğini gösterir. -->
+            <frame_id>odom</frame_id>  <!-- navigation muhabbetlerinde kulllanılıyormuş, ama asla anlamadım 47. videonun 12:31 zamanında ve ondan önceki bir yerde daha anlatıyordu ordan öğrenebilirsin -->
+            
+            <!-- Bu plugin bir odometry (tekerlek enkoderlerine dayalı konum tahmini) üretir. 
+            Odometry verisi dediğimiz şey /odom mesajı şeklinde yayınlanır.
+            ROS’ta her konum bilgisi mutlaka bir “frame” adıyla ilişkilendirilir.
+            Odometry’nin ürettiği robot gövdesi frame’inin adıdır. 
+            Yani "bu odometry verisi hangi frame’e aittir?" sorusunun cevabıdır.-->
+            <child_frame_id>base_footprint</child_frame_id> <!-- base_footprint diye tanımladığımız linkin ismi olmalı bura, hatırla o link soyut bir şeydi -->
+            <!-- “Ben tekerleklerden hesapladığım pozisyonu odom koordinat sisteminde ve bu pozisyon base_footprint frame’ine ait şekilde yayınlıyorum.” -->
+            
+        </plugin> <!--  bu plugin publishes tf between odom and base_footprint-->
+        
+    </gazebo>
+
+    <!-- joint state publisher ile TF'leri geri ROS2ya göndermeyi sağlayacağız burda encoderları simülate ediyoruz aslında-->
+    <!-- robotun jointlerinini mevcut durumlarını okuyup bunları ROS içindeki diğer bileşenlerin kullanabileceği şekilde yayınlar -->
+    <!-- Joint State Publisher sadece eklemlerin durumlarını sağlar. Robot State Publisher ise bu verileri kullanarak robotun kinematik hesaplamalarını yapar 
+    ve her bir parçanın (linkin) global koordinat sistemine göre nerede olduğunu (dönüşüm matrisleri/koordinat çerçeveleri) tanımlayan 
+    $tf$ (Transform) mesajlarını yayınlar. rqt graph'tan hatırla -->
+    <gazebo>
+        <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <!-- tüm jointler için joint state i publish edecek eğer aşağıdaki gibi tag açmazsan-->
+        <joint_name>base_left_wheel_joint</joint_name>
+        <joint_name>base_right_wheel_joint</joint_name>
+        </plugin>
+    </gazebo>
+
+    <!-- fix jointler için sürtünmeyi azaltmak istiyoruz, neden IDK, nedne böyle yapıyoz onu da IDK-->
+    <gazebo reference="caster_wheel_link">
+        <mu1 value="0.1" />
+        <mu2 value="0.1" />
+    </gazebo>
+
+</robot>

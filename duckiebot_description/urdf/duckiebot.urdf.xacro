@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot name="duckiebot" xmlns:xacro="http://www.ros.org/wiki/xacro">   <!-- xacro'da bu önemli -->  
+    <!-- xacro'da başka bir xacro dosyasını include edebiliriz -->
+    <!-- common properties'i mobile_base'de include edebilir miydik? evet ama başka xacro dosyalarında da kullanılabilirdi bu common properties. o zaman onu burda include etmek daha mantıklı-->  
+    <xacro:include filename="common_properties.xacro" /> <!-- bunu yapınca o dosyalar otomatik çalışacaklar, ama launch dosyasına sadece bu main dosya çalıştırılıyor. magic-->
+    <xacro:include filename="mobile_base.xacro" />
+    <xacro:include  filename="mobile_base_gazebo.xacro" />
+    <xacro:include  filename="camera.xacro" />
+    <!-- <xacro:include  filename="lidar.xacro" /> -->
+    <xacro:include  filename="imu.xacro" />
+</robot>

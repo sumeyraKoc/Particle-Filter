@@ -1,0 +1,68 @@
+<launch>
+    <!-- parametre yazmak için let tagını kullanırız, evet burda parametre tanımladık-->
+    <let name="urdf_path" 
+         value="$(find-pkg-share duckiebot_description)/urdf/duckiebot.urdf.xacro" />
+    
+
+    <!-- şimdi run edicez aşağıdaki node -->
+    <!-- ros2 run robot_state_publisher robot_state_publisher -ros-args -p robot_description:="$(xacro duckiebot.urdf.xacro)" -->
+
+    <node pkg="robot_state_publisher" exec= "robot_state_publisher">
+        <param name="robot_description"
+               value= "$(command 'xacro $(var urdf_path)')" /> 
+        <param name="use_sim_time" value="true"/>
+    </node>                      
+
+    <!-- şimdi launch edicez gazeboyu-->
+    <!-- ros2 launch ros_gz_sim gz_sim.launch.py gz_args:="empty.sdf -r"-->
+    
+    <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py"> <!-- terminalden /opt/ros/jazzy ye girip ordan da share klasörüne ordan ros_gz_sim klasörüne geçersen launch dosyasını görürsün, onun da içinde gz_sim.launch var-->
+        <arg name="gz_args" value="$(find-pkg-share duckiebot_bringup)/worlds/ware_house3.sdf  -r" />
+        <!-- <arg name="gz_args" value="empty.sdf -r" /> -->
+    </include>
+
+    <!-- şimdi robotu spawn edicez:  -->
+    <!--ros2 run ros_gz_sim create -topic robot_description -->
+    <node pkg="ros_gz_sim" exec="create" 
+      args="-topic robot_description 
+            -x -13.3619 
+            -y -22.6255 
+            -z 0.0006 
+            -R 0.0000 
+            -P 0.0000 
+            -Y 3.1116"/>
+
+    <!-- ros2 ile gazebo arasında bridge kuralım -->
+    <node pkg="ros_gz_bridge" exec="parameter_bridge">
+        <param name="config_file" value="$(find-pkg-share duckiebot_bringup)/config/gazebo_bridge.yaml" /> 
+    </node>
+
+    <!-- aruco node'unu başlatalım -->
+    <node pkg="ros2_aruco" exec="aruco_node" name="aruco_node" output="screen">
+        <param name="image_topic" value="/camera/image_raw"/>
+        <param name="camera_info_topic" value="/camera/camera_info"/>
+        <param name="marker_size" value="0.45"/>
+        <param name="aruco_dictionary_id" value="DICT_4X4_50"/>
+        <param name="use_sim_time" value="true"/>
+    </node>
+    
+    <!-- PARTICLE FILTER -->
+    <node
+        pkg="duckiebot_bringup"
+        exec="particle_filter.py"
+        name="particle_filter"
+        output="screen"
+    />
+
+    <!-- PARTICLE FILTER -->
+    <node
+        pkg="duckiebot_bringup"
+        exec="pf_visualizer.py"
+        name="pf_visualizer"
+        output="screen"
+    />
+    
+    <!-- rvizi start edelim  -->
+    <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(find-pkg-share duckiebot_description)/rviz/project_config.rviz"/>
+    
+</launch>

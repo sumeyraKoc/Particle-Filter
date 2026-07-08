@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:property name="lidar_radius" value="${(base_width/4.0)}" />
+    <xacro:property name="lidar_height" value="0.02" />
+
+    <link name="base_scan_link">
+        <visual>
+            <geometry>
+                <cylinder radius="${(lidar_radius)}" length="${(lidar_height)}" />
+            </geometry>
+            <material name="grey" />
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${(lidar_radius)}" length="${(lidar_height)}" />
+            </geometry>
+        </collision>
+        <!-- inertia -->
+        <xacro:cylinder_inertia m="0.5" r="${(lidar_radius)}" h="${(lidar_height)}" o_xyz="0 0 0" o_rpy="0 0 0" />
+    </link>
+
+    <joint name="base_link_base_scan_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="base_scan_link" />
+        <origin xyz="0 0 ${(base_height + lidar_height/2.0)}" rpy="0 0 0" />
+    </joint>
+
+    <gazebo reference="base_scan_link">
+        <sensor name="laser" type="gpu_lidar">
+            <pose> 0 0 0 0 0 0 </pose>
+            <always_on>true</always_on>
+            <visualize>true</visualize>
+            <update_rate>10</update_rate>
+            <topic>scan</topic>
+            <gz_frame_id>base_scan_link</gz_frame_id>
+            <lidar>
+                <scan>
+                    <horizontal>
+                        <samples>720</samples>
+                        <resolution>1</resolution>
+                        <min_angle>-3.14</min_angle>
+                        <max_angle>3.14</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.05</min>
+                    <max>10.0</max>
+                    <resolution>0.01</resolution>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.01</stddev>
+                </noise>
+                <frame_id>base_scan_link</frame_id>
+            </lidar>
+            <always_on>1</always_on>
+            <visualize>true</visualize>
+        </sensor>
+    </gazebo>
+
+
+
+
+</robot>
